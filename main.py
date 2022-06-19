@@ -57,9 +57,10 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
 def draw(canvas, row=3, column=3):
     
     screen = curses.initscr()
+    screen.nodelay(True)
     max_y, max_x = screen.getmaxyx()
     coroutines = list()
-    stars_num = int(max_x * max_y // 5)
+    stars_num = int(max_x * max_y // 15)
     coordinates = list()
     for x in range(1, max_x - 1):
         for y in range(1, max_y - 1):
@@ -85,6 +86,14 @@ def draw(canvas, row=3, column=3):
         rows_speed=-0.2,
     )
 
+    from curses_tools import draw_frame, read_controls
+    with open('rocket_frame_1.txt', 'r') as rocket:
+        starship1 = rocket.read()
+    with open('rocket_frame_2.txt', 'r') as rocket:
+        starship2 = rocket.read()
+
+    pos_x = int(max_x // 2)
+    pos_y = int(max_y // 2)
     while True:
         for coroutine in coroutines.copy():
             coroutine.send(None)
@@ -92,9 +101,22 @@ def draw(canvas, row=3, column=3):
             fireshot.send(None)
         except (StopIteration, RuntimeError):
             pass
-
-        time.sleep(0.1)
+        rows_direction, columns_direction, space_pressed = read_controls(canvas)
+        
+        draw_frame(canvas, pos_y, pos_x, starship2, True)
         canvas.refresh()
+        pos_x += columns_direction
+        pos_y += rows_direction
+        
+        draw_frame(canvas, pos_y, pos_x, starship1, False)
+        canvas.refresh()
+        time.sleep(0.1)
+        draw_frame(canvas, pos_y, pos_x, starship1, True)
+        canvas.refresh()
+        draw_frame(canvas, pos_y, pos_x, starship2, False)
+        canvas.refresh()
+        time.sleep(0.1)
+        
 
 
 if __name__ == '__main__':
