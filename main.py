@@ -46,7 +46,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
 
     curses.beep()
 
-    while 0 < row < max_row and 0 < column < max_column:
+    while 1 < row < max_row and 1 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
         await asyncio.sleep(0)
         canvas.addstr(round(row), round(column), ' ')
@@ -82,7 +82,7 @@ def draw(canvas, row=3, column=3):
         canvas=canvas,
         start_row=int(max_y // 2),
         start_column=int(max_x // 2),
-        rows_speed=-2,
+        rows_speed=-0.2,
     )
 
     while True:
@@ -93,7 +93,7 @@ def draw(canvas, row=3, column=3):
         except (StopIteration, RuntimeError):
             pass
 
-        time.sleep(0.5)
+        time.sleep(0.1)
         canvas.refresh()
 
 
