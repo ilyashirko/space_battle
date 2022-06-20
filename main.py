@@ -4,6 +4,8 @@ import time
 import random
 from types import NoneType
 
+from curses_tools import get_frame_size
+
 async def blink(canvas, row, column, symbol='*'):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
@@ -87,11 +89,15 @@ def draw(canvas, row=3, column=3):
     )
 
     from curses_tools import draw_frame, read_controls
+    from statistics import median
+
     with open('rocket_frame_1.txt', 'r') as rocket:
         starship1 = rocket.read()
     with open('rocket_frame_2.txt', 'r') as rocket:
         starship2 = rocket.read()
 
+    starship_height, starship_width = get_frame_size(starship1)
+    
     pos_x = int(max_x // 2)
     pos_y = int(max_y // 2)
     while True:
@@ -105,8 +111,11 @@ def draw(canvas, row=3, column=3):
         
         draw_frame(canvas, pos_y, pos_x, starship2, True)
         canvas.refresh()
-        pos_x += columns_direction
-        pos_y += rows_direction
+
+        if 0 < pos_x + columns_direction < max_x - starship_width:
+            pos_x += columns_direction
+        if 0 < pos_y + rows_direction < max_y - starship_height:
+            pos_y += rows_direction
         
         draw_frame(canvas, pos_y, pos_x, starship1, False)
         canvas.refresh()
