@@ -1,34 +1,35 @@
 import asyncio
 import curses
-import time
 import random
-from types import NoneType
+import time
 
-from curses_tools import get_frame_size
+from curses_tools import draw_frame, get_frame_size, read_controls
+
 
 async def blink(canvas, row, column, symbol='*'):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        for _ in range(random.randint(1, 20)):
+        for _ in range(random.randint(1, 5)):
             await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol)
-        for _ in range(random.randint(1, 20)):
+        for _ in range(random.randint(1, 5)):
             await asyncio.sleep(0)
-        
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        for _ in range(random.randint(1, 20)):
+        for _ in range(random.randint(1, 5)):
             await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol)
-        for _ in range(random.randint(1, 20)):
+        for _ in range(random.randint(1, 5)):
             await asyncio.sleep(0)
 
 
-async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0):
-    """Display animation of gun shot, direction and speed can be specified."""
-
+async def fire(canvas,
+               start_row,
+               start_column,
+               rows_speed=-0.3,
+               columns_speed=0):
     row, column = start_row, start_column
 
     canvas.addstr(round(row), round(column), '*')
@@ -56,17 +57,22 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
         column += columns_speed
 
 
-def draw(canvas, row=3, column=3):
-    
+def draw(canvas):
+    canvas.border()
+
     screen = curses.initscr()
     screen.nodelay(True)
+
     max_y, max_x = screen.getmaxyx()
-    coroutines = list()
+
     stars_num = int(max_x * max_y // 15)
-    coordinates = list()
-    for x in range(1, max_x - 1):
-        for y in range(1, max_y - 1):
-            coordinates.append((x, y))
+    coroutines = list()
+
+    coordinates = [
+        (x, y)
+        for x in range(1, max_x - 1)
+        for y in range(1, max_y - 1)
+    ]
 
     for _ in range(stars_num):
         random_coord = random.choice(coordinates)
@@ -80,7 +86,7 @@ def draw(canvas, row=3, column=3):
                 symbol=random.choice('+*.:')
             )
         )
-    canvas.border()
+
     fireshot = fire(
         canvas=canvas,
         start_row=int(max_y // 2),
@@ -88,18 +94,16 @@ def draw(canvas, row=3, column=3):
         rows_speed=-0.2,
     )
 
-    from curses_tools import draw_frame, read_controls
-    from statistics import median
-
     with open('rocket_frame_1.txt', 'r') as rocket:
         starship1 = rocket.read()
     with open('rocket_frame_2.txt', 'r') as rocket:
         starship2 = rocket.read()
 
     starship_height, starship_width = get_frame_size(starship1)
-    
+
     pos_x = int(max_x // 2)
     pos_y = int(max_y // 2)
+
     while True:
         for coroutine in coroutines.copy():
             coroutine.send(None)
@@ -107,8 +111,9 @@ def draw(canvas, row=3, column=3):
             fireshot.send(None)
         except (StopIteration, RuntimeError):
             pass
-        rows_direction, columns_direction, space_pressed = read_controls(canvas)
-        
+
+        rows_direction, columns_direction, _ = read_controls(canvas)
+
         draw_frame(canvas, pos_y, pos_x, starship2, True)
         canvas.refresh()
 
@@ -116,16 +121,17 @@ def draw(canvas, row=3, column=3):
             pos_x += columns_direction
         if 0 < pos_y + rows_direction < max_y - starship_height:
             pos_y += rows_direction
-        
+
         draw_frame(canvas, pos_y, pos_x, starship1, False)
         canvas.refresh()
         time.sleep(0.1)
+
         draw_frame(canvas, pos_y, pos_x, starship1, True)
         canvas.refresh()
+
         draw_frame(canvas, pos_y, pos_x, starship2, False)
         canvas.refresh()
         time.sleep(0.1)
-        
 
 
 if __name__ == '__main__':
