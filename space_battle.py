@@ -57,7 +57,7 @@ async def fire(canvas,
         column += columns_speed
 
 
-def draw(canvas):
+def draw(canvas, stars_ratio = 0.06):
     canvas.border()
 
     screen = curses.initscr()
@@ -65,7 +65,7 @@ def draw(canvas):
 
     max_y, max_x = screen.getmaxyx()
 
-    stars_num = int(max_x * max_y // 15)
+    stars_num = int(max_x * max_y * stars_ratio)
     coroutines = list()
 
     coordinates = [
