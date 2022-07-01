@@ -95,12 +95,12 @@ def draw(canvas, stars_ratio=0.06):
         rows_speed=-0.2,
     )
 
-    with open('frames/rocket_frame_1.txt', 'r') as rocket:
-        starship1 = rocket.read()
-    with open('frames/rocket_frame_2.txt', 'r') as rocket:
-        starship2 = rocket.read()
+    starships = dict()
+    for num in range(1, 3):
+        with open(f'frames/rocket_frame_{num}.txt', 'r') as rocket:
+            starships[num] = rocket.read()
 
-    starship_height, starship_width = get_frame_size(starship1)
+    starship_height, starship_width = get_frame_size(starships[1])
 
     pos_x = int(max_x // 2)
     pos_y = int(max_y // 2)
@@ -115,7 +115,7 @@ def draw(canvas, stars_ratio=0.06):
 
         rows_direction, columns_direction, _ = read_controls(canvas)
 
-        draw_frame(canvas, pos_y, pos_x, starship2, True)
+        draw_frame(canvas, pos_y, pos_x, starships[2], True)
         canvas.refresh()
 
         if 0 < pos_x + columns_direction < max_x - starship_width:
@@ -123,14 +123,14 @@ def draw(canvas, stars_ratio=0.06):
         if 0 < pos_y + rows_direction < max_y - starship_height:
             pos_y += rows_direction
 
-        draw_frame(canvas, pos_y, pos_x, starship1, False)
+        draw_frame(canvas, pos_y, pos_x, starships[1], False)
         canvas.refresh()
         time.sleep(0.1)
 
-        draw_frame(canvas, pos_y, pos_x, starship1, True)
+        draw_frame(canvas, pos_y, pos_x, starships[1], True)
         canvas.refresh()
 
-        draw_frame(canvas, pos_y, pos_x, starship2, False)
+        draw_frame(canvas, pos_y, pos_x, starships[2], False)
         canvas.refresh()
         time.sleep(0.1)
 
