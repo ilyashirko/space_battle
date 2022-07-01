@@ -57,8 +57,9 @@ async def fire(canvas,
         column += columns_speed
 
 
-def draw(canvas, stars_ratio = 0.06):
+def draw(canvas, stars_ratio=0.06):
     canvas.border()
+    curses.curs_set(False)
 
     screen = curses.initscr()
     screen.nodelay(True)
