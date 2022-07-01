@@ -94,9 +94,9 @@ def draw(canvas):
         rows_speed=-0.2,
     )
 
-    with open('rocket_frame_1.txt', 'r') as rocket:
+    with open('frames/rocket_frame_1.txt', 'r') as rocket:
         starship1 = rocket.read()
-    with open('rocket_frame_2.txt', 'r') as rocket:
+    with open('frames/rocket_frame_2.txt', 'r') as rocket:
         starship2 = rocket.read()
 
     starship_height, starship_width = get_frame_size(starship1)
