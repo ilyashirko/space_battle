@@ -57,6 +57,43 @@ async def fire(canvas,
         column += columns_speed
 
 
+async def starship_animation(canvas, max_x, max_y, starships):
+    starship_height, starship_width = get_frame_size(starships[1])
+    pos_x = int(max_x // 2)
+    pos_y = int(max_y // 2)
+    step = 0
+    first_pos, second_pos = 1, 2
+    while True:
+        if step == 2:
+            first_pos, second_pos = second_pos, first_pos
+            step = 0
+        else:
+            step += 1
+
+        draw_frame(canvas, pos_y, pos_x, starships[second_pos], True)
+        draw_frame(canvas, pos_y, pos_x, starships[first_pos], True)
+        canvas.refresh()
+
+        rows_direction, columns_direction, _ = read_controls(canvas)
+
+        if 0 < pos_x + columns_direction < max_x - starship_width:
+            pos_x += columns_direction
+        if 0 < pos_y + rows_direction < max_y - starship_height:
+            pos_y += rows_direction
+
+        draw_frame(canvas, pos_y, pos_x, starships[first_pos], False)
+        canvas.refresh()
+        time.sleep(0.1)
+
+        draw_frame(canvas, pos_y, pos_x, starships[first_pos], True)
+        canvas.refresh()
+
+        draw_frame(canvas, pos_y, pos_x, starships[second_pos], False)
+        canvas.refresh()
+        time.sleep(0.1)
+        await asyncio.sleep(0)
+
+
 def draw(canvas, stars_ratio=0.06):
     canvas.border()
     curses.curs_set(False)
@@ -100,11 +137,7 @@ def draw(canvas, stars_ratio=0.06):
         with open(f'frames/rocket_frame_{num}.txt', 'r') as rocket:
             starships[num] = rocket.read()
 
-    starship_height, starship_width = get_frame_size(starships[1])
-
-    pos_x = int(max_x // 2)
-    pos_y = int(max_y // 2)
-
+    starship = starship_animation(canvas, max_x, max_y, starships)
     while True:
         for coroutine in coroutines.copy():
             coroutine.send(None)
@@ -113,26 +146,7 @@ def draw(canvas, stars_ratio=0.06):
         except (StopIteration, RuntimeError):
             pass
 
-        rows_direction, columns_direction, _ = read_controls(canvas)
-
-        draw_frame(canvas, pos_y, pos_x, starships[2], True)
-        canvas.refresh()
-
-        if 0 < pos_x + columns_direction < max_x - starship_width:
-            pos_x += columns_direction
-        if 0 < pos_y + rows_direction < max_y - starship_height:
-            pos_y += rows_direction
-
-        draw_frame(canvas, pos_y, pos_x, starships[1], False)
-        canvas.refresh()
-        time.sleep(0.1)
-
-        draw_frame(canvas, pos_y, pos_x, starships[1], True)
-        canvas.refresh()
-
-        draw_frame(canvas, pos_y, pos_x, starships[2], False)
-        canvas.refresh()
-        time.sleep(0.1)
+        starship.send(None)
 
 
 if __name__ == '__main__':
