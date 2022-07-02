@@ -59,10 +59,10 @@ async def fire(canvas,
 
 async def starship_animation(canvas, max_x, max_y, starships):
     starship_height, starship_width = get_frame_size(starships[1])
-    pos_x = int(max_x // 2)
-    pos_y = int(max_y // 2)
+    pos_x, pos_y = int(max_x // 2), int(max_y // 2)
     step = 0
     first_pos, second_pos = 1, 2
+
     while True:
         if step == 2:
             first_pos, second_pos = second_pos, first_pos
@@ -91,6 +91,7 @@ async def starship_animation(canvas, max_x, max_y, starships):
         draw_frame(canvas, pos_y, pos_x, starships[second_pos], False)
         canvas.refresh()
         time.sleep(0.1)
+        
         await asyncio.sleep(0)
 
 
@@ -125,11 +126,13 @@ def draw(canvas, stars_ratio=0.06):
             )
         )
 
-    fireshot = fire(
-        canvas=canvas,
-        start_row=int(max_y // 2),
-        start_column=int(max_x // 2),
-        rows_speed=-0.2,
+    coroutines.append(
+        fire(
+            canvas=canvas,
+            start_row=int(max_y // 2),
+            start_column=int(max_x // 2),
+            rows_speed=-0.2,
+        )
     )
 
     starships = dict()
@@ -137,16 +140,14 @@ def draw(canvas, stars_ratio=0.06):
         with open(f'frames/rocket_frame_{num}.txt', 'r') as rocket:
             starships[num] = rocket.read()
 
-    starship = starship_animation(canvas, max_x, max_y, starships)
+    coroutines.append(starship_animation(canvas, max_x, max_y, starships))
+
     while True:
         for coroutine in coroutines.copy():
-            coroutine.send(None)
-        try:
-            fireshot.send(None)
-        except (StopIteration, RuntimeError):
-            pass
-
-        starship.send(None)
+            try:
+                coroutine.send(None)
+            except (StopIteration, RuntimeError):
+                pass
 
 
 if __name__ == '__main__':
