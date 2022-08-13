@@ -1,5 +1,6 @@
 import asyncio
 import curses
+import os
 import random
 import time
 
@@ -136,9 +137,10 @@ def draw(canvas, stars_ratio=0.06):
     )
 
     starships = dict()
-    for num in range(1, 3):
-        with open(f'frames/rocket_frame_{num}.txt', 'r') as rocket:
-            starships[num] = rocket.read()
+    frames_files = os.listdir('frames')
+    for num, frame_file in enumerate(frames_files):
+        with open(f'frames/{frame_file}', 'r') as rocket:
+            starships[num + 1] = rocket.read()
 
     coroutines.append(starship_animation(canvas, max_x, max_y, starships))
 
