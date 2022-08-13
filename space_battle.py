@@ -1,13 +1,13 @@
 import asyncio
 import curses
-from itertools import cycle
 import os
 import random
-import time
+from itertools import cycle
 
 from curses_tools import draw_frame, get_frame_size, read_controls
 
 DELAY = 500
+
 
 async def get_asyncio_sleep(loops_num=DELAY):
     for _ in range(loops_num):
@@ -60,7 +60,6 @@ async def fire(canvas,
         canvas.addstr(round(row), round(column), ' ')
         row += rows_speed
         column += columns_speed
-
 
 
 async def starship_animation(canvas, max_x, max_y, starships):
