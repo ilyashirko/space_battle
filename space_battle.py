@@ -148,8 +148,8 @@ def draw(canvas, stars_ratio=0.06):
         for coroutine in coroutines.copy():
             try:
                 coroutine.send(None)
-            except (StopIteration, RuntimeError):
-                pass
+            except StopIteration:
+                coroutines.remove(coroutine)
 
 
 if __name__ == '__main__':
