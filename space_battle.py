@@ -6,27 +6,31 @@ from itertools import cycle
 
 from curses_tools import draw_frame, get_frame_size, read_controls
 
-DELAY = 500
+STARS_DELAY = 800
+
+SHIP_DELAY = 100
+
+SHOT_DELAY = 100
 
 
-async def get_asyncio_sleep(loops_num=DELAY):
+async def get_asyncio_sleep(loops_num=500):
     for _ in range(loops_num):
         await asyncio.sleep(0)
 
 
-async def blink(canvas, row, column, symbol='*'):
+async def blink(canvas, row, column, symbol='*', delay=STARS_DELAY):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        await get_asyncio_sleep(random.randint(1, DELAY))
+        await get_asyncio_sleep(random.randint(1, delay))
 
         canvas.addstr(row, column, symbol)
-        await get_asyncio_sleep(random.randint(1, DELAY))
+        await get_asyncio_sleep(random.randint(1, delay))
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        await get_asyncio_sleep(random.randint(1, DELAY))
+        await get_asyncio_sleep(random.randint(1, delay))
 
         canvas.addstr(row, column, symbol)
-        await get_asyncio_sleep(random.randint(1, DELAY))
+        await get_asyncio_sleep(random.randint(1, delay))
 
 
 async def fire(canvas,
@@ -37,10 +41,10 @@ async def fire(canvas,
     row, column = start_row, start_column
 
     canvas.addstr(round(row), round(column), '*')
-    await get_asyncio_sleep()
+    await get_asyncio_sleep(SHOT_DELAY)
 
     canvas.addstr(round(row), round(column), 'O')
-    await get_asyncio_sleep()
+    await get_asyncio_sleep(SHOT_DELAY)
 
     canvas.addstr(round(row), round(column), ' ')
 
@@ -56,7 +60,7 @@ async def fire(canvas,
 
     while 1 < row < max_row and 1 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
-        await get_asyncio_sleep()
+        await get_asyncio_sleep(SHOT_DELAY)
         canvas.addstr(round(row), round(column), ' ')
         row += rows_speed
         column += columns_speed
@@ -76,7 +80,7 @@ async def starship_animation(canvas, max_x, max_y, starships):
         draw_frame(canvas, pos_y, pos_x, starships[pos], False)
         canvas.refresh()
         draw_frame(canvas, pos_y, pos_x, starships[pos], True)
-        await get_asyncio_sleep()
+        await get_asyncio_sleep(SHIP_DELAY)
 
 
 def draw(canvas, stars_ratio=0.06):
