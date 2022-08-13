@@ -1,30 +1,32 @@
 import asyncio
 import curses
+from itertools import cycle
 import os
 import random
 import time
 
 from curses_tools import draw_frame, get_frame_size, read_controls
 
+DELAY = 500
 
-async def stars_awaiting():
-    for _ in range(random.randint(1, 5)):
+async def get_asyncio_sleep(loops_num=DELAY):
+    for _ in range(loops_num):
         await asyncio.sleep(0)
 
 
 async def blink(canvas, row, column, symbol='*'):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        await stars_awaiting()
+        await get_asyncio_sleep(random.randint(1, DELAY))
 
         canvas.addstr(row, column, symbol)
-        await stars_awaiting()
+        await get_asyncio_sleep(random.randint(1, DELAY))
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        await stars_awaiting()
+        await get_asyncio_sleep(random.randint(1, DELAY))
 
         canvas.addstr(row, column, symbol)
-        await stars_awaiting()
+        await get_asyncio_sleep(random.randint(1, DELAY))
 
 
 async def fire(canvas,
@@ -35,10 +37,11 @@ async def fire(canvas,
     row, column = start_row, start_column
 
     canvas.addstr(round(row), round(column), '*')
-    await asyncio.sleep(0)
+    await get_asyncio_sleep()
 
     canvas.addstr(round(row), round(column), 'O')
-    await asyncio.sleep(0)
+    await get_asyncio_sleep()
+
     canvas.addstr(round(row), round(column), ' ')
 
     row += rows_speed
@@ -53,48 +56,28 @@ async def fire(canvas,
 
     while 1 < row < max_row and 1 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
-        await asyncio.sleep(0)
+        await get_asyncio_sleep()
         canvas.addstr(round(row), round(column), ' ')
         row += rows_speed
         column += columns_speed
 
 
+
 async def starship_animation(canvas, max_x, max_y, starships):
     starship_height, starship_width = get_frame_size(starships[1])
     pos_x, pos_y = int(max_x // 2), int(max_y // 2)
-    step = 0
-    first_pos, second_pos = 1, 2
 
-    while True:
-        if step == 2:
-            first_pos, second_pos = second_pos, first_pos
-            step = 0
-        else:
-            step += 1
-
-        draw_frame(canvas, pos_y, pos_x, starships[second_pos], True)
-        draw_frame(canvas, pos_y, pos_x, starships[first_pos], True)
-        canvas.refresh()
-
+    for pos in cycle([1, 2, 1, 2, 2, 1, 2, 1]):
         rows_direction, columns_direction, _ = read_controls(canvas)
-
         if 0 < pos_x + columns_direction < max_x - starship_width:
             pos_x += columns_direction
         if 0 < pos_y + rows_direction < max_y - starship_height:
             pos_y += rows_direction
 
-        draw_frame(canvas, pos_y, pos_x, starships[first_pos], False)
+        draw_frame(canvas, pos_y, pos_x, starships[pos], False)
         canvas.refresh()
-        time.sleep(0.1)
-
-        draw_frame(canvas, pos_y, pos_x, starships[first_pos], True)
-        canvas.refresh()
-
-        draw_frame(canvas, pos_y, pos_x, starships[second_pos], False)
-        canvas.refresh()
-        time.sleep(0.1)
-        
-        await asyncio.sleep(0)
+        draw_frame(canvas, pos_y, pos_x, starships[pos], True)
+        await get_asyncio_sleep()
 
 
 def draw(canvas, stars_ratio=0.06):
