@@ -73,7 +73,7 @@ async def make_starship_animation(canvas, max_x, max_y, starships):
     starship_height, starship_width = get_frame_size(starships[1])
     pos_x, pos_y = int(max_x // 2), int(max_y // 2)
 
-    for pos in cycle([1, 2, 1, 2, 2, 1, 2, 1]):
+    for pos in cycle([1, 1, 2, 2, 1, 1, 2, 2]):
         rows_direction, columns_direction, _ = read_controls(canvas)
         if 0 < pos_x + columns_direction < max_x - starship_width:
             pos_x += columns_direction
