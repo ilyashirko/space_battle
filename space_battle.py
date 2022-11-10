@@ -2,6 +2,7 @@ import asyncio
 import curses
 import os
 import random
+import time
 from itertools import cycle
 
 from curses_tools import draw_frame, get_frame_size, read_controls
@@ -12,25 +13,27 @@ SHIP_DELAY = 100
 
 SHOT_DELAY = 100
 
+GAME_SPEED_KF = 0.0005
+
 
 async def get_asyncio_sleep(loops_num=500):
     for _ in range(loops_num):
         await asyncio.sleep(0)
 
 
-async def blink(canvas, row, column, symbol='*', delay=STARS_DELAY):
+async def blink(canvas, row, column, delays=[1, 2, 3, 4], symbol='*'):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        await get_asyncio_sleep(random.randint(1, delay))
+        await get_asyncio_sleep(delays[0])
 
         canvas.addstr(row, column, symbol)
-        await get_asyncio_sleep(random.randint(1, delay))
+        await get_asyncio_sleep(delays[1])
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        await get_asyncio_sleep(random.randint(1, delay))
+        await get_asyncio_sleep(delays[2])
 
         canvas.addstr(row, column, symbol)
-        await get_asyncio_sleep(random.randint(1, delay))
+        await get_asyncio_sleep(delays[3])
 
 
 async def fire(canvas,
@@ -110,6 +113,7 @@ def draw(canvas, stars_ratio=0.06):
                 canvas=canvas,
                 row=y,
                 column=x,
+                delays=[random.randint(1, STARS_DELAY) for _ in range(4)],
                 symbol=random.choice('+*.:')
             )
         )
@@ -137,7 +141,7 @@ def draw(canvas, stars_ratio=0.06):
                 coroutine.send(None)
             except StopIteration:
                 coroutines.remove(coroutine)
-
+        time.sleep(GAME_SPEED_KF)
 
 if __name__ == '__main__':
     curses.update_lines_cols()
