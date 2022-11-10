@@ -13,7 +13,7 @@ SHIP_DELAY = 100
 
 SHOT_DELAY = 100
 
-GAME_SPEED_KF = 0.0005
+GAME_SPEED_KF = 0.00001
 
 
 async def get_asyncio_sleep(loops_num=500):
@@ -69,7 +69,7 @@ async def fire(canvas,
         column += columns_speed
 
 
-async def starship_animation(canvas, max_x, max_y, starships):
+async def make_starship_animation(canvas, max_x, max_y, starships):
     starship_height, starship_width = get_frame_size(starships[1])
     pos_x, pos_y = int(max_x // 2), int(max_y // 2)
 
@@ -82,6 +82,7 @@ async def starship_animation(canvas, max_x, max_y, starships):
 
         draw_frame(canvas, pos_y, pos_x, starships[pos], False)
         canvas.refresh()
+        await get_asyncio_sleep(SHIP_DELAY)
         draw_frame(canvas, pos_y, pos_x, starships[pos], True)
         await get_asyncio_sleep(SHIP_DELAY)
 
@@ -133,7 +134,7 @@ def draw(canvas, stars_ratio=0.06):
         with open(f'frames/{frame_file}', 'r') as rocket:
             starships[num + 1] = rocket.read()
 
-    coroutines.append(starship_animation(canvas, max_x, max_y, starships))
+    coroutines.append(make_starship_animation(canvas, max_x, max_y, starships))
 
     while True:
         for coroutine in coroutines.copy():
