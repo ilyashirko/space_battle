@@ -130,9 +130,9 @@ def draw(canvas, stars_ratio=0.06):
 
     starships = dict()
     frames_files = os.listdir('frames')
-    for num, frame_file in enumerate(frames_files):
+    for num, frame_file in enumerate(frames_files, start=1):
         with open(f'frames/{frame_file}', 'r') as rocket:
-            starships[num + 1] = rocket.read()
+            starships[num] = rocket.read()
 
     coroutines.append(make_starship_animation(canvas, max_x, max_y, starships))
 
