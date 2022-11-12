@@ -73,17 +73,18 @@ async def make_starship_animation(canvas, max_x, max_y, starships):
     starship_height, starship_width = get_frame_size(starships[1])
     pos_x, pos_y = int(max_x // 2), int(max_y // 2)
 
-    for pos in cycle([1, 1, 2, 2, 1, 1, 2, 2]):
+    for frame in cycle(sorted(starships * 2)):
+        
         rows_direction, columns_direction, _ = read_controls(canvas)
         if 0 < pos_x + columns_direction < max_x - starship_width:
             pos_x += columns_direction
         if 0 < pos_y + rows_direction < max_y - starship_height:
             pos_y += rows_direction
 
-        draw_frame(canvas, pos_y, pos_x, starships[pos], False)
+        draw_frame(canvas, pos_y, pos_x, frame, False)
         canvas.refresh()
         await get_asyncio_sleep(SHIP_DELAY)
-        draw_frame(canvas, pos_y, pos_x, starships[pos], True)
+        draw_frame(canvas, pos_y, pos_x, frame, True)
         await get_asyncio_sleep(SHIP_DELAY)
 
 
@@ -128,11 +129,11 @@ def draw(canvas, stars_ratio=0.06):
         )
     )
 
-    starships = dict()
+    starships = list()
     frames_files = os.listdir('frames')
-    for num, frame_file in enumerate(frames_files, start=1):
+    for frame_file in frames_files:
         with open(f'frames/{frame_file}', 'r') as rocket:
-            starships[num] = rocket.read()
+            starships.append(rocket.read())
 
     coroutines.append(make_starship_animation(canvas, max_x, max_y, starships))
 
