@@ -16,7 +16,7 @@ SHOT_DELAY = 100
 GAME_SPEED_KF = 0.00001
 
 
-async def get_asyncio_sleep(loops_num=500):
+async def sleep(loops_num=500):
     for _ in range(loops_num):
         await asyncio.sleep(0)
 
@@ -24,16 +24,16 @@ async def get_asyncio_sleep(loops_num=500):
 async def blink(canvas, row, column, delays=[1, 2, 3, 4], symbol='*'):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        await get_asyncio_sleep(delays[0])
+        await sleep(delays[0])
 
         canvas.addstr(row, column, symbol)
-        await get_asyncio_sleep(delays[1])
+        await sleep(delays[1])
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        await get_asyncio_sleep(delays[2])
+        await sleep(delays[2])
 
         canvas.addstr(row, column, symbol)
-        await get_asyncio_sleep(delays[3])
+        await sleep(delays[3])
 
 
 async def fire(canvas,
@@ -44,10 +44,10 @@ async def fire(canvas,
     row, column = start_row, start_column
 
     canvas.addstr(round(row), round(column), '*')
-    await get_asyncio_sleep(SHOT_DELAY)
+    await sleep(SHOT_DELAY)
 
     canvas.addstr(round(row), round(column), 'O')
-    await get_asyncio_sleep(SHOT_DELAY)
+    await sleep(SHOT_DELAY)
 
     canvas.addstr(round(row), round(column), ' ')
 
@@ -63,13 +63,13 @@ async def fire(canvas,
 
     while 1 < row < max_row and 1 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
-        await get_asyncio_sleep(SHOT_DELAY)
+        await sleep(SHOT_DELAY)
         canvas.addstr(round(row), round(column), ' ')
         row += rows_speed
         column += columns_speed
 
 
-async def make_starship_animation(canvas, max_x, max_y, starships):
+async def animate_starship(canvas, max_x, max_y, starships):
     starship_height, starship_width = get_frame_size(starships[1])
     pos_x, pos_y = int(max_x // 2), int(max_y // 2)
 
@@ -83,12 +83,12 @@ async def make_starship_animation(canvas, max_x, max_y, starships):
 
         draw_frame(canvas, pos_y, pos_x, frame, False)
         canvas.refresh()
-        await get_asyncio_sleep(SHIP_DELAY)
+        await sleep(SHIP_DELAY)
         draw_frame(canvas, pos_y, pos_x, frame, True)
-        await get_asyncio_sleep(SHIP_DELAY)
+        await sleep(SHIP_DELAY)
 
 
-def draw(canvas, stars_ratio=0.06):
+def draw_game(canvas, stars_ratio=0.06):
     canvas.border()
     curses.curs_set(False)
 
@@ -135,7 +135,7 @@ def draw(canvas, stars_ratio=0.06):
         with open(f'frames/{frame_file}', 'r') as rocket:
             starships.append(rocket.read())
 
-    coroutines.append(make_starship_animation(canvas, max_x, max_y, starships))
+    coroutines.append(animate_starship(canvas, max_x, max_y, starships))
 
     while True:
         for coroutine in coroutines.copy():
@@ -147,4 +147,4 @@ def draw(canvas, stars_ratio=0.06):
 
 if __name__ == '__main__':
     curses.update_lines_cols()
-    curses.wrapper(draw)
+    curses.wrapper(draw_game)
