@@ -76,10 +76,22 @@ async def animate_starship(canvas, max_x, max_y, starships):
     for frame in cycle(sorted(starships * 2)):
         
         rows_direction, columns_direction, _ = read_controls(canvas)
-        if 0 < pos_x + columns_direction < max_x - starship_width:
-            pos_x += columns_direction
-        if 0 < pos_y + rows_direction < max_y - starship_height:
-            pos_y += rows_direction
+
+        while columns_direction > 0 and pos_x + 1 < max_x - starship_width:
+            pos_x += 1
+            columns_direction -= 1
+
+        while columns_direction < 0 and pos_x - 1 > 0:
+            pos_x -= 1
+            columns_direction += 1
+
+        while rows_direction > 0 and pos_y + 1 < max_y - starship_height:
+            pos_y += 1
+            rows_direction -= 1
+
+        while rows_direction < 0 and pos_y - 1 > 0:
+            pos_y -= 1
+            rows_direction += 1
 
         draw_frame(canvas, pos_y, pos_x, frame, False)
         canvas.refresh()
