@@ -86,13 +86,10 @@ async def animate_starship(canvas, max_x, max_y, starships):
             pos_y = min(pos_y + rows_direction, max_y - starship_height - 1)
         else:
             pos_y = max(pos_y + rows_direction, 1)
-        
 
         draw_frame(canvas, pos_y, pos_x, frame, False)
-        canvas.refresh()
         await sleep(SHIP_DELAY)
         draw_frame(canvas, pos_y, pos_x, frame, True)
-        await sleep(SHIP_DELAY)
 
 
 def draw_game(canvas, stars_ratio=0.06):
@@ -150,6 +147,7 @@ def draw_game(canvas, stars_ratio=0.06):
                 coroutine.send(None)
             except StopIteration:
                 coroutines.remove(coroutine)
+        canvas.refresh()
         time.sleep(GAME_SPEED_KF)
 
 if __name__ == '__main__':
