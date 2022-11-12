@@ -130,8 +130,8 @@ def draw(canvas, stars_ratio=0.06):
     )
 
     starships = list()
-    frames_files = os.listdir('frames')
-    for frame_file in frames_files:
+    frames_filenames = os.listdir('frames')
+    for frame_file in frames_filenames:
         with open(f'frames/{frame_file}', 'r') as rocket:
             starships.append(rocket.read())
 
